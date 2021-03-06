@@ -41,6 +41,11 @@ def setup_training(self):
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
+
+    
+    setup_training_batches(self)
+
+
     # init model stats
     if N_GAMES not in self.model:
         self.model[N_GAMES] = 0
@@ -92,7 +97,8 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
 
         ### append new transition. EVENTS HAVE TO BE ADDED BEFOREHAND ###
         self.transitions.append(Transition(state_to_features(old_game_state), self_action, next_state_features, reward_from_events(self, events)))
-        q_val = q_learning(self)    # updates Q-value for correspronding game_state-action-pair
+        # q_val = q_learning(self)    # updates Q-value for correspronding game_state-action-pair
+        update_training_batches(self)
 
 
 
@@ -111,9 +117,58 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
             self.model[s_string][action] = q_val
         """
 
+def setup_training_batches(self):
+    self.training_batches = dict()
+    for a in ACTIONS:
+        self.training_batches[a] = []
 
-        
-        
+# TODO: check for correctness
+def update_training_batches(self):
+    if len(self.transitions) <1:
+        return
+    t = self.transitions[-1]
+    #if (not t.state.all()) or (not t.next_state.all()):
+        #return
+    # find max Q(S_t+1, a)
+    # TODO: this can be optimized with libs that can easily find the max for a given argument
+    max_next_Q_val = 0
+    for a_next in ACTIONS:
+        if a_next not in self.action_vectors:
+            l = len(t.state)
+            self.action_vectors[a] = np.ones(l) + np.random.rand(l)/10
+        max_next_Q_val_new =  np.dot(t.next_state, self.action_vectors[a_next] )
+        if max_next_Q_val_new > max_next_Q_val:
+            max_next_Q_val = max_next_Q_val_new
+    X = t.state
+    Y = t.reward + GAMMA * max_next_Q_val
+    self.training_batches[t.action].append( [X, Y] )
+    #self.logger.debug("training_batches: "+str(self.training_batches))
+
+
+# TODO: debug
+def update_action_vectors(self):
+    if len(self.transitions) <1:
+        return
+    # TODO: create batches for each action
+    for a in ACTIONS:
+        N = len(self.training_batches[a])
+        if N == 0:
+            continue
+        beta = self.action_vectors[a].copy()
+        batch = self.training_batches[a]
+        s = 0 # sum
+        for (X, Y) in batch:
+            s += X.T * (Y-X*beta)
+        new_beta = beta + ALPHA / N * s
+        self.action_vectors[a] = new_beta
+        # empty training batches
+        setup_training_batches(self) 
+
+
+
+
+
+
 # test punish_loops function
 def detect_loop(self, next_state_features):
     for t in self.transitions:
@@ -121,7 +176,6 @@ def detect_loop(self, next_state_features):
             return True
     return False
 
-# TODO implement n-step q-learning
 def q_learning(self):
     if len(self.transitions) < 1:
         return
@@ -142,8 +196,6 @@ def q_learning(self):
     self.model[s_cur][a] = q_val
     return q_val
     
-
-
 # TODO DEBUG: overwriting new_state does not work
 def get_analogue_game_states_action_pairs(game_state, action:str, self, N=15):
     state_action_pairs = []
@@ -223,6 +275,15 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
 
     :param self: The same object that is passed to all of your callbacks.
     """
+    self.logger.debug("training_batches: "+str(self.training_batches))
+
+    update_action_vectors(self)
+    self.logger.debug("update action vectors")
+    for key in self.action_vectors:
+        self.logger.debug(str(key)+ " "+str( self.action_vectors[key]))
+
+    self.logger.debug("training_batches: "+str(self.training_batches))
+
     self.model[N_GAMES] += 1
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
     self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
@@ -232,6 +293,8 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
+    with open("action_vectors.pt", "wb") as file:
+        pickle.dump(self.action_vectors, file)
 
 
 def reward_from_events(self, events: List[str]) -> int:
