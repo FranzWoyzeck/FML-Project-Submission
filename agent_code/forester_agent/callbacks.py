@@ -27,6 +27,17 @@ def setup_regressors(self):
         with open("action_regressors.pt", "rb") as file:
             self.regressors:dict = dict(pickle.load(file))
 
+def setup_stats(self):
+    # only create new stats, if the is no according file
+    if not os.path.isfile("stats.pt"):
+        self.logger.info("Setting up stats from scratch.")
+        self.stats: dict = dict()
+        self.stats["n_games"] = 1
+    else:
+        self.logger.info("Loading stats from saved state.")
+        with open("stats.pt", "rb") as file:
+            self.stats:dict = dict(pickle.load(file))
+
 def setup(self):
     """
     Setup your code. This is called once when loading each agent.
@@ -40,6 +51,7 @@ def setup(self):
     """
     setup_q_table(self)
     setup_regressors(self)
+    setup_stats(self)
 
 def get_action_via_regressors(self, game_state):
     if not self.regressors:
@@ -50,6 +62,27 @@ def get_action_via_regressors(self, game_state):
     for i, a in enumerate(ACTIONS):
         Q[i] = self.regressors[a].predict( [state] )
     return ACTIONS[Q.argmax()]
+
+def get_action_via_q_table_else_via_regressors(self, game_state):
+    state_tuple = tuple(state_to_features(game_state).tolist())
+    self.logger.debug("State: "+ str(state_tuple))
+    if state_tuple in self.q_table:
+        # find best action via q_table
+        self.logger.debug("Choosing move via q-table: " + ACTIONS[self.q_table[state_tuple].argmax()])
+        return ACTIONS[self.q_table[state_tuple].argmax()]
+
+    if self.regressors:
+        # find best action via regressors
+        self.logger.debug("choosing action via regressors.")
+        state = state_to_features(game_state)
+        Q = np.zeros(len(ACTIONS))
+        for i, a in enumerate(ACTIONS):
+            Q[i] = self.regressors[a].predict( [state] )
+        return ACTIONS[Q.argmax()]
+
+    # guess best action (random)
+    self.logger.debug("No regressors, choosing randomly")
+    return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
 
 def get_action_via_q_table(self, game_state):
@@ -74,13 +107,14 @@ def act(self, game_state: dict) -> str:
     """
     random_prob = .1
     if self.train and random.random() < random_prob:
-        self.logger.debug("Choosing action purely at random.")
+        self.logger.debug("Choosing action purely at random (epsilon-greedy).")
         # 80%: walk in any direction. 10% wait. 10% bomb.
         return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
     self.logger.debug("Querying model for action.")
     # return get_action_via_q_table(self, game_state)
-    return get_action_via_regressors(self, game_state)
+    # return get_action_via_regressors(self, game_state)
+    return get_action_via_q_table_else_via_regressors(self, game_state)
 
 
 def state_to_features(game_state: dict) -> np.array:
@@ -110,22 +144,31 @@ def state_to_features(game_state: dict) -> np.array:
     # Gather information about the game state
     arena = game_state['field']
     _, score, bombs_left, (x, y) = game_state['self']
-    # bombs = game_state['bombs']
+    bombs = game_state['bombs']
     # bomb_xys = [xy for (xy, t) in bombs]
     # others = [xy for (n, s, b, xy) in game_state['others']]
     coins = game_state['coins']
 
     nearest_coin = get_nearest_coin(game_state)
-    radar = create_coin_radar(coins, (x,y), max_dist=5)
+    print(arena.size)
+    a = np.reshape(arena[x-n:x+n+1, y-n:y+n+1], 9)
+    c = np.asarray(get_direction_from_to( (x,y), nearest_coin, max_c=2 ))
+    d = get_position_case((x, y))
+    if bombs != []:
+        #print(bombs[0][0])
+        e = get_direction_from_to( (x,y), bombs[0][0], max_c=2 )
+    else: 
+        e = np.array([100, 100])
+
+    channel = np.concatenate((a, c, d, e))
 
     # Add selected features
-    
+    channels.append(channel)
     # channels.append(arena[x-n:x+n+1, y-n:y+n+1]) # field of view of short-sighted agent
     # channels.append(radar)  # shows in wich direction are coins
     
-    channels.append( get_position_case( (x,y) ) )   # add position case (4 possible cases)
-    channels.append( dist_to_proximity( get_direction_from_to( (x,y), nearest_coin, max_c=2 ), 3))
-    channels.append( (1, -1) )   # two constants that might help the linear value approximation
+    # channels.append( get_position_case( (x,y) ) )   # add position case (4 possible cases)
+    # channels.append( get_direction_from_to( (x,y), nearest_coin, max_c=2 ))
     # channels.append( get_longest_direction(dir) )   # add direction in which agent has to go furthest
 
 
@@ -134,15 +177,15 @@ def state_to_features(game_state: dict) -> np.array:
     stacked_channels = np.stack(channels)
     return stacked_channels.reshape(-1)
 
-def dist_to_proximity(pos:tuple, max_dist:int = 15)->tuple:
-    # converts relative position to proximity values (high values mean that the position is near)
-    a = max_dist - np.abs(pos[0])
-    b = max_dist - np.abs(pos[1])
-    if pos[0] < 0:
-        a *= -1
-    if pos[1] < 0:
-        b *= -1
-    return (a, b)
+def get_danger_zone(bombs):
+    # TODO: sort bombs by countdown (descending)
+    field_len = 17
+    range:int = 4   #3 tiles in each direction
+    danger_zone = np.zeros((field_len, field_len))
+    for p, t in sorted (bombs, key = lambda x: x[1], reverse=True):
+        danger_zone[ max(p[0]-range,0):min(p[0]+range, field_len) , p[1]] = t
+        danger_zone[ p[0], max(p[1]-range,0):min(p[1]+range, field_len)] = t
+    return danger_zone(2, 2), 4
 
 def get_direction_from_to(p1:tuple, p2:tuple, max_c:int=2)->tuple:
     # compute coordinates of vector from p1 to p2 and limit coordinates by max_c

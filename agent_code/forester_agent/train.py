@@ -8,6 +8,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 import events as e
 from .callbacks import state_to_features, get_nearest_coin, manhattenDist, ACTIONS
 
+n_training_rate = 1000   # update regressor every ...th game
 
 # import warnings filter from sklearn
 from warnings import simplefilter
@@ -45,7 +46,6 @@ def setup_training(self):
     # (s, a, r, s')
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
 
-    # setup regressor
     
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
@@ -68,19 +68,9 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
 
     
     if new_game_state and old_game_state:
-        # reward if distance to nearest coin decreased
-        old_nearest_coin = get_nearest_coin(old_game_state)
-        new_nearest_coin = get_nearest_coin(new_game_state)
-        _, _, _, old_pos = old_game_state['self']
-        _, _, _, new_pos = new_game_state['self']
         
-        old_dist_to_coin = manhattenDist(old_pos, old_nearest_coin)
-        new_dist_to_coin = manhattenDist(new_pos, new_nearest_coin)
-        if old_dist_to_coin and new_dist_to_coin:   #makes sure the distance is not None, due to missing coins
-            if old_dist_to_coin > new_dist_to_coin:
-                events.append(DECREASE_COIN_DISTANCE)
-            else:
-                events.append(INCREASE_COIN_DISTANCE)
+        
+        detect_coin_distance_events(self, events, old_game_state, new_game_state)
 
         # check for loops in the agents behaviour, i.e. agent reaches a state twice
         next_state_features = state_to_features(new_game_state)
@@ -109,6 +99,20 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
                 self.q_table[s_string] = np.ones(6) +  np.random.rand(6)/10 # TODO: guess init values
             self.q_table[s_string][action] = q_val
         """
+
+def detect_coin_distance_events(self, events, old_game_state, new_game_state):
+    old_nearest_coin = get_nearest_coin(old_game_state)
+    new_nearest_coin = get_nearest_coin(new_game_state)
+    _, _, _, old_pos = old_game_state['self']
+    _, _, _, new_pos = new_game_state['self']
+      
+    old_dist_to_coin = manhattenDist(old_pos, old_nearest_coin)
+    new_dist_to_coin = manhattenDist(new_pos, new_nearest_coin)
+    if old_dist_to_coin and new_dist_to_coin:   #makes sure the distance is not None, due to missing coins
+        if old_dist_to_coin > new_dist_to_coin:
+            events.append(DECREASE_COIN_DISTANCE)
+        else:
+            events.append(INCREASE_COIN_DISTANCE)
 
 def detect_loop(self, next_state_features):
     for t in self.transitions:
@@ -200,7 +204,6 @@ def get_analogue_game_states_action_pairs(game_state, action:str, self, N=15):
 
     return state_action_pairs    
 
-def update_training_batches(self, n_max_samples=np.inf):
     # take randomly 10 samples from the q table and put the q-values in the according training_batches
     # TODO idea: take only samples in accound with low standard deviation
     n_samples = min(len(self.q_table), n_max_samples)
@@ -266,7 +269,10 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
     self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
 
-    create_gradient_boost_regressor(self)
+    self.stats["n_games"] += 1
+    if self.stats["n_games"] % 100 == 0:
+        self.logger.debug("creating new regressors")
+        create_gradient_boost_regressor(self)
 
     
     # Store the q_table
@@ -275,6 +281,9 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     # store action vectors
     with open("action_regressors.pt", "wb") as file:
         pickle.dump(self.regressors , file)
+    # store stats
+    with open("stats.pt", "wb") as file:
+        pickle.dump(self.stats, file)
 
 def reward_from_events(self, events: List[str]) -> int:
     game_rewards = {
@@ -282,16 +291,17 @@ def reward_from_events(self, events: List[str]) -> int:
         e.DECREASE_COIN_DISTANCE: 1,
         e.INCREASE_COIN_DISTANCE: -1,
         e.KILLED_OPPONENT: 5,
-        e.INVALID_ACTION: -20,  #-20
+        e.INVALID_ACTION: -1,  #-20
         e.MOVED_UP: -1,
         e.MOVED_DOWN: -1,
         e.MOVED_LEFT: -1,
         e.MOVED_RIGHT: -1,
-        e.BOMB_DROPPED: -10,
-        e.WAITED: -20,
-        e.GOT_KILLED: -1000,   #-1000
+        e.BOMB_DROPPED: -1,
+        e.WAITED: -1,
+        e.GOT_KILLED: 0,
         e.DETECTED_LOOP: -1,
-        e.KILLED_SELF: -1000
+        e.KILLED_SELF: -100,
+        e.CRATE_DESTROYED: 50
     }
     reward_sum = 0
     for event in events:
