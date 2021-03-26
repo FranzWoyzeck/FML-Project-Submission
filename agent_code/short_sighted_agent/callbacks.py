@@ -40,6 +40,28 @@ def setup(self):
         with open("action_vectors.pt", "rb") as file:
             self.action_vectors:dict = dict(pickle.load(file))
 
+def get_action_via_lin_val_approx(self, game_state):
+        features = state_to_features(game_state)
+        Q = np.zeros(len(ACTIONS))
+        for i, a in enumerate(ACTIONS):
+            # calculate Q value for action a via 'linear value approximation'
+            if a not in self.action_vectors:
+                # if there is no action vector yet, make a (random) guess
+                l = len(features)
+                self.action_vectors[a] = np.random.rand(l)
+            Q[i] = np.dot(features, self.action_vectors[a])
+        return ACTIONS[Q.argmax()]
+
+def get_action_via_q_table(self, game_state):
+    S_string = str(state_to_features(game_state))
+    if S_string in self.model:
+        self.logger.debug("State: "+ S_string+ ", choosing move: " + ACTIONS[self.model[S_string].argmax()])
+        self.logger.debug("q-values for cur state: "+str(self.model[S_string]))
+        return ACTIONS[self.model[S_string].argmax()]
+    self.logger.debug("No idea what to do. choosing randomly")
+    return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
+
+
 
 def act(self, game_state: dict) -> str:
     """
@@ -51,36 +73,24 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
 
-    random_prob = .1
-    if self.train and random.random() < random_prob:
+    EPSILON = .1
+    if self.train and random.random() < EPSILON:
         self.logger.debug("Choosing action purely at random.")
         # 80%: walk in any direction. 10% wait. 10% bomb.
         return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
     self.logger.debug("Querying model for action.")
-    features = state_to_features(game_state)
-    Q = np.zeros(len(ACTIONS))
-    for i, a in enumerate(ACTIONS):
-        # calculate Q value for action a via 'linear value approximation'
-        if a not in self.action_vectors:            # if there is no action vector yet, make a (random) guess
-            l = len(features)
-            self.action_vectors[a] = np.ones(l) + np.random.rand(l)/10
-        #self.logger.debug(features * self.action_vectors[a])
-        Q[i] = np.dot(features, self.action_vectors[a])    # TODO is this the right type of product here?
-    return ACTIONS[Q.argmax()]
+    #return get_action_via_q_table(self, game_state)
     
-    # TODO
-    def lin_val_approx(self):
-        pass
-
-    """
+    
+    S_string = str(state_to_features(game_state))
     if S_string in self.model:
         self.logger.debug("State: "+ S_string+ ", choosing move: " + ACTIONS[self.model[S_string].argmax()])
         self.logger.debug("q-values for cur state: "+str(self.model[S_string]))
         return ACTIONS[self.model[S_string].argmax()]
     self.logger.debug("No idea what to do. choosing randomly")
     return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
-    """
+    
 
 def state_to_features(game_state: dict) -> np.array:
     """

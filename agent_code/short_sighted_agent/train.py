@@ -43,7 +43,7 @@ def setup_training(self):
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
 
     
-    setup_training_batches(self)
+    #setup_training_batches(self)
 
 
     # init model stats
@@ -97,8 +97,8 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
 
         ### append new transition. EVENTS HAVE TO BE ADDED BEFOREHAND ###
         self.transitions.append(Transition(state_to_features(old_game_state), self_action, next_state_features, reward_from_events(self, events)))
-        # q_val = q_learning(self)    # updates Q-value for correspronding game_state-action-pair
-        update_training_batches(self)
+        q_val = q_learning(self)    # updates Q-value for correspronding game_state-action-pair
+        # update_training_batches(self)
 
 
 
@@ -275,14 +275,14 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
 
     :param self: The same object that is passed to all of your callbacks.
     """
-    self.logger.debug("training_batches: "+str(self.training_batches))
+    #self.logger.debug("training_batches: "+str(self.training_batches))
 
-    update_action_vectors(self)
-    self.logger.debug("update action vectors")
-    for key in self.action_vectors:
-        self.logger.debug(str(key)+ " "+str( self.action_vectors[key]))
+    #update_action_vectors(self)
+    #self.logger.debug("update action vectors")
+    #for key in self.action_vectors:
+    #    self.logger.debug(str(key)+ " "+str( self.action_vectors[key]))
 
-    self.logger.debug("training_batches: "+str(self.training_batches))
+    #self.logger.debug("training_batches: "+str(self.training_batches))
 
     self.model[N_GAMES] += 1
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')

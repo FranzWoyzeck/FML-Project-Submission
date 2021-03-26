@@ -63,12 +63,24 @@ def get_action_via_regressors(self, game_state):
         Q[i] = self.regressors[a].predict( [state] )
     return ACTIONS[Q.argmax()]
 
+def get_action_via_q_table(self, game_state):
+    state = tuple(state_to_features(game_state).tolist())
+    if state in self.q_table:
+        self.logger.debug("State: "+ str(state)+ ", choosing move via q-table: " + ACTIONS[self.q_table[state].argmax()])
+        # self.logger.debug("q-values for cur state: "+str(self.q_table[S_string]))
+        return ACTIONS[self.q_table[state].argmax()]
+    self.logger.debug("No idea what to do. choosing randomly")
+    return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
+
 def get_action_via_q_table_else_via_regressors(self, game_state):
     state_tuple = tuple(state_to_features(game_state).tolist())
     self.logger.debug("State: "+ str(state_tuple))
     if state_tuple in self.q_table:
         # find best action via q_table
         self.logger.debug("Choosing move via q-table: " + ACTIONS[self.q_table[state_tuple].argmax()])
+        # print(ACTIONS[self.q_table[state_tuple].argmax()])
+        # print(self.q_table[state_tuple])
+        # print(state_tuple)
         return ACTIONS[self.q_table[state_tuple].argmax()]
 
     if self.regressors:
@@ -85,14 +97,6 @@ def get_action_via_q_table_else_via_regressors(self, game_state):
     return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
 
-def get_action_via_q_table(self, game_state):
-    state = tuple(state_to_features(game_state).tolist())
-    if state in self.q_table:
-        self.logger.debug("State: "+ str(state)+ ", choosing move via q-table: " + ACTIONS[self.q_table[state].argmax()])
-        # self.logger.debug("q-values for cur state: "+str(self.q_table[S_string]))
-        return ACTIONS[self.q_table[state].argmax()]
-    self.logger.debug("No idea what to do. choosing randomly")
-    return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
 
 
@@ -150,18 +154,20 @@ def state_to_features(game_state: dict) -> np.array:
     coins = game_state['coins']
 
     nearest_coin = get_nearest_coin(game_state)
-    print(arena.size)
+
+    danger_zone = get_danger_zone(bombs)
     a = np.reshape(arena[x-n:x+n+1, y-n:y+n+1], 9)
+    b = np.reshape(danger_zone[x-n:x+n+1, y-n:y+n+1], 9)
     c = np.asarray(get_direction_from_to( (x,y), nearest_coin, max_c=2 ))
     d = get_position_case((x, y))
     if bombs != []:
-        #print(bombs[0][0])
         e = get_direction_from_to( (x,y), bombs[0][0], max_c=2 )
     else: 
         e = np.array([100, 100])
+    f = [is_crate_in_bomb_range((x,y), arena)]
 
-    channel = np.concatenate((a, c, d, e))
 
+    channel = np.concatenate((a, b, c, d, e, f))
     # Add selected features
     channels.append(channel)
     # channels.append(arena[x-n:x+n+1, y-n:y+n+1]) # field of view of short-sighted agent
@@ -177,15 +183,29 @@ def state_to_features(game_state: dict) -> np.array:
     stacked_channels = np.stack(channels)
     return stacked_channels.reshape(-1)
 
+
+
+def is_crate_in_bomb_range(pos:tuple, arena:list):
+    field_len:int = 17
+    crate_val:float = 1.0
+    range = 3+1 #3 tiles in each direction
+    (x, y) = pos
+    if x % 2 == 1:  #check for crates in collumn
+        if crate_val in arena[ max(x-range,0):min(x+range, field_len) , y]:
+            return 1
+    if y % 2 ==1:
+        if crate_val in arena[ x, max(y-range,0):min(y+range, field_len)]:
+            return 1
+    return 0
+
 def get_danger_zone(bombs):
-    # TODO: sort bombs by countdown (descending)
     field_len = 17
     range:int = 4   #3 tiles in each direction
     danger_zone = np.zeros((field_len, field_len))
     for p, t in sorted (bombs, key = lambda x: x[1], reverse=True):
         danger_zone[ max(p[0]-range,0):min(p[0]+range, field_len) , p[1]] = t
         danger_zone[ p[0], max(p[1]-range,0):min(p[1]+range, field_len)] = t
-    return danger_zone(2, 2), 4
+    return danger_zone
 
 def get_direction_from_to(p1:tuple, p2:tuple, max_c:int=2)->tuple:
     # compute coordinates of vector from p1 to p2 and limit coordinates by max_c

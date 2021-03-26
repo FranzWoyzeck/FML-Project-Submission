@@ -6,7 +6,7 @@ from typing import List
 from sklearn.ensemble import GradientBoostingRegressor
 
 import events as e
-from .callbacks import state_to_features, get_nearest_coin, manhattenDist, ACTIONS
+from .callbacks import state_to_features, get_nearest_coin, manhattenDist, ACTIONS, get_danger_zone, is_crate_in_bomb_range
 
 n_training_rate = 1000   # update regressor every ...th game
 
@@ -69,8 +69,10 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     
     if new_game_state and old_game_state:
         
-        
+        detect_placing_bomb_near_crates(self, events, old_game_state, self_action)
+        detect_waiting_in_danger_zone(self, events, old_game_state, self_action)
         detect_coin_distance_events(self, events, old_game_state, new_game_state)
+        detect_unnecessary_waiting(self, events, old_game_state, self_action)
 
         # check for loops in the agents behaviour, i.e. agent reaches a state twice
         next_state_features = state_to_features(new_game_state)
@@ -100,6 +102,31 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
             self.q_table[s_string][action] = q_val
         """
 
+def detect_placing_bomb_near_crates(self, events, old_game_state, self_action):
+    if self_action == "BOMB":
+        _, _, _, (x, y) = old_game_state["self"]
+        arena = old_game_state['field']
+        if is_crate_in_bomb_range((x, y), arena) == 1:
+            events.append( e.PLACED_BOMB_NEAR_CRATE )
+        else:
+            events.append( e.PLACED_BOMB_NOT_NEAR_CRATE )
+
+
+
+def detect_waiting_in_danger_zone(self, events, old_game_state, self_action):
+    bombs = old_game_state['bombs']
+    _, _, _, (x, y) = old_game_state['self']
+    danger_zone = get_danger_zone(bombs)
+    if self_action == "WAIT" and danger_zone[x,y] != 0:
+        events.append(e.WAITED_IN_DANGER_ZONE)
+        # print(e.WAITED_IN_DANGER_ZONE)
+        
+def detect_unnecessary_waiting(self, events, old_game_state, self_action):
+    bombs = old_game_state['bombs']
+    if bombs == [] and self_action == "WAIT":
+        #print(e.WAITED_WITHOUT_BOMB)
+        events.append(e.WAITED_WITHOUT_BOMB)
+
 def detect_coin_distance_events(self, events, old_game_state, new_game_state):
     old_nearest_coin = get_nearest_coin(old_game_state)
     new_nearest_coin = get_nearest_coin(new_game_state)
@@ -111,7 +138,7 @@ def detect_coin_distance_events(self, events, old_game_state, new_game_state):
     if old_dist_to_coin and new_dist_to_coin:   #makes sure the distance is not None, due to missing coins
         if old_dist_to_coin > new_dist_to_coin:
             events.append(DECREASE_COIN_DISTANCE)
-        else:
+        if old_dist_to_coin < new_dist_to_coin:
             events.append(INCREASE_COIN_DISTANCE)
 
 def detect_loop(self, next_state_features):
@@ -291,21 +318,26 @@ def reward_from_events(self, events: List[str]) -> int:
         e.DECREASE_COIN_DISTANCE: 1,
         e.INCREASE_COIN_DISTANCE: -1,
         e.KILLED_OPPONENT: 5,
-        e.INVALID_ACTION: -1,  #-20
+        e.INVALID_ACTION: -10,     #coin training: -20
         e.MOVED_UP: -1,
         e.MOVED_DOWN: -1,
         e.MOVED_LEFT: -1,
         e.MOVED_RIGHT: -1,
-        e.BOMB_DROPPED: -1,
+        e.BOMB_DROPPED: -1,       # coin-trainging: -100
         e.WAITED: -1,
         e.GOT_KILLED: 0,
         e.DETECTED_LOOP: -1,
-        e.KILLED_SELF: -100,
-        e.CRATE_DESTROYED: 50
+        e.KILLED_SELF: -1000,     #0
+        e.CRATE_DESTROYED: 10,
+        e.WAITED_WITHOUT_BOMB: -1000,     #-10
+        e.WAITED_IN_DANGER_ZONE: -10,    #-50
+        e.PLACED_BOMB_NEAR_CRATE: 1,
+        e.PLACED_BOMB_NOT_NEAR_CRATE: -1
     }
     reward_sum = 0
     for event in events:
         if event in game_rewards:
             reward_sum += game_rewards[event]
     self.logger.info(f"Awarded {reward_sum} for events {', '.join(events)}")
+    # print(f"Awarded {reward_sum} for events {', '.join(events)}")
     return reward_sum
