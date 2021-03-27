@@ -10,12 +10,52 @@ class MODEL:
         initialization of the super class model: discrete states, actions, learning_rate, discount, rewards
         change of learning rates can defined here
         """
+        # model table structure
         self.model = np.array([])
+
+        # discrete states
         self.discrete_state_old = 0
         self.discrete_state_new = 0
+
+        # new state variables
+        self.new_position = 0
+        self.new_field = 0
+        self.new_coins = 0
+        self.new_crates = 0
+        self.new_bombs = 0
+        self.new_enemies = 0
+        self.new_closest_coin = 0
+        self.new_closest_coin_dist = 0
+        self.new_closest_crate = 0
+        self.new_closest_crate_dist = 0
+
+        # new state variables
+        self.old_position = 0
+        self.old_field = 0
+        self.old_coins = []
+        self.old_crates = []
+        self.old_bombs = 0
+        self.old_enemies = 0
+        self.old_closest_coin = 0
+        self.old_closest_coin_dist = 0
+        self.old_closest_crate = 0
+        self.old_closest_crate_dist = 0
+
+        # action variables
         self.actions = np.array(['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB'])
+
+        # direction variables
+        self.direction = np.unique(np.array(list(permutations([1, 1, 1, 0], 4))), axis=0)
+        self.direction = np.concatenate(
+            (self.direction, np.unique(np.array(list(permutations([1, 1, 0, 0], 4))), axis=0)), axis=0)
+        self.direction = np.concatenate(
+            (self.direction, np.unique(np.array(list(permutations([1, 0, 0, 0], 4))), axis=0)), axis=0)
+        self.direction = np.concatenate((self.direction, np.array([[0, 0, 0, 0]])), axis=0)
+
+        # learning variables
         self.learning_rate = 0.1
         self.discount = 0.95
+
         self.rewards = 0
 
     def q_learning(self, self_action):
@@ -33,11 +73,51 @@ class MODEL:
         self.model[self.discrete_state_old][action] = (1 - self.learning_rate) * old_q[action] + self.learning_rate * (self.rewards + self.discount * max_future_q)
         self.end_of_action()
 
+    def start_of_action(self, state):
+        self.new_position = np.array(state.get('self')[3])
+        self.new_field = np.array(state.get('field'))
+        self.new_bombs = np.array([np.array(bomb[0]) for bomb in state.get('bombs')])
+        self.new_coins = np.array(state.get('coins'))
+        self.new_crates = np.argwhere(self.new_field == 1)
+        if self.new_crates.size != 0:
+            relative_crates = self.new_crates - self.new_position
+            manhattan = np.abs(relative_crates.T[0]) + np.abs(relative_crates.T[1])
+            if self.new_position[0] % 2 == 0 and self.new_position[1] % 2 != 0:
+                for i, crate in enumerate(relative_crates):
+                    if crate[0] == 0 and crate[1] != 0:
+                        manhattan[i] += 2
+            elif self.new_position[1] % 2 == 0 and self.new_position[0] % 2 != 0:
+                for i, crate in enumerate(relative_crates):
+                    if crate[1] == 0 and crate[0] != 0:
+                        manhattan[i] += 2
+            self.new_closest_crate_dist = np.min(manhattan)
+            self.new_closest_crate = relative_crates[np.argmin(manhattan)]
+        self.new_enemies = np.array([np.array(enemy[3]) for enemy in state.get('others')])
+        if self.new_coins.size != 0:
+            if len(self.new_coins) == len(self.old_coins):
+                self.new_closest_coin_dist = self.get_distance(self.new_field, self.new_position, self.new_closest_coin)
+            else:
+                coins = []
+                for coin in self.new_coins:
+                    coins.append(self.get_distance(self.new_field, self.new_position, coin))
+                self.new_closest_coin = self.new_coins[np.argmin(np.array(coins))]
+                self.new_closest_coin_dist = np.min(np.array(coins))
+
     def end_of_action(self):
         """
         transforms the new discrete state into the old state
         """
         self.discrete_state_old = self.discrete_state_new
+        self.old_position = self.new_position
+        self.old_field = self.new_field
+        self.old_coins = self.new_coins
+        self.old_crates = self.new_crates
+        self.old_bombs = self.new_bombs
+        self.old_enemies = self.new_enemies
+        self.old_closest_coin = self.new_closest_coin
+        self.old_closest_coin_dist = self.new_closest_coin_dist
+        self.old_closest_crate = self.new_closest_crate
+        self.old_closest_crate_dist = self.new_closest_crate_dist
 
     @staticmethod
     def get_distance(field, start, end):
@@ -49,9 +129,49 @@ class MODEL:
         path, runs = finder.find_path(start, end, grid)
         return len(path)
 
+    @staticmethod
+    def relative_direction(a, b):
+        relative_direction = np.array(a) - np.array(b)
+        if relative_direction[0] == 0:
+            if relative_direction[1] > 0:
+                return 0
+            elif relative_direction[1] < 0:
+                return 2
+            else:
+                return 8
+        elif relative_direction[1] == 0:
+            if relative_direction[0] > 0:
+                return 3
+            else:
+                return 1
+        else:
+            if relative_direction[0] < 0 < relative_direction[1]:
+                return 4
+            elif relative_direction[0] < 0 > relative_direction[1]:
+                return 5
+            elif relative_direction[0] > 0 > relative_direction[1]:
+                return 6
+            elif relative_direction[0] > 0 < relative_direction[1]:
+                return 7
+
+    def get_possible_directions(self):
+        """
+        checking in which possible directions state the player is now
+        Inputs:
+            game_state, self.direction
+        Returns:
+            index_index_directions in update
+        """
+        field = self.new_field[self.new_position[0] - 1:self.new_position[0] + 2, self.new_position[1] - 1:self.new_position[1] + 2]
+        field = np.array([field[1, 0], field[0, 1], field[2, 1], field[1, 2]])
+        field = np.where(field != 0, 1, 0)
+        for i, direction in enumerate(self.direction):
+            if np.array_equal(direction, field):
+                return i
+        return 0
 
 
-class CRATES(MODEL):
+class COIN(MODEL):
     """
     A class of model only able to bomb crates in an intelligent method
     """
@@ -65,146 +185,20 @@ class CRATES(MODEL):
             bomb_triggered (bool to indicated if a bomb was laid)
         """
         super().__init__()
-        self.direction = np.unique(np.array(list(permutations([1, 1, 1, 0], 4))), axis=0)
-        self.direction = np.concatenate(
-            (self.direction, np.unique(np.array(list(permutations([1, 1, 0, 0], 4))), axis=0)), axis=0)
-        self.direction = np.concatenate(
-            (self.direction, np.unique(np.array(list(permutations([1, 0, 0, 0], 4))), axis=0)), axis=0)
-        self.direction = np.concatenate((self.direction, np.array([[0, 0, 0, 0]])), axis=0)
-        self.model = np.full(([9] + [8] + [len(self.direction)+1] + [len(self.actions)]), -0.5)
-        self.size_crates = 0
-        self.crate = False
-        self.arg_min = 0
-        self.bomb_triggered = False
-        self.countdown = 3
-        self.bomb_position = 0
+        self.model = np.full(([len(self.direction)+1] + [9] + [len(self.actions)]), -0.5)
 
-    def update(self, state):
+    def update(self):
         """
         Updates the new discrete state
         """
-        index_crates = self.get_crate_state(state)
-        index_danger_zone = self.get_danger_zone(state)
-        index_directions = self.get_possible_directions(state)
-        self.discrete_state_new = (index_crates, index_danger_zone, index_directions)
+        index_directions = self.get_possible_directions()
+        index_coin_direction = self.get_coin_direction()
+        self.discrete_state_new = (index_directions, index_coin_direction)
 
-    def get_danger_zone(self, state):
-        """
-        gives the featback if the players state is a state of danger,
-         and if where the danger (bomb) is relative to player, or not (range of bomb or not)
-        Inputs:
-            state: game_state, get_relative_bomb(game_state)
-        Returns:
-        index_danger_zone in update
-        """
-        if state.get('self')[2]:
-            # no bombs laid yet
-            return 0
-        else:
-            relative_bomb = self.get_relative_bomb(state)
-            if np.all(relative_bomb):
-                # diagonal so no danger zone here
-                return 1
-            else:
-                if np.abs(relative_bomb[0]) + np.abs(relative_bomb[1]) > 3:
-                    # enough distance between bomb and player
-                    return 2
-                else:
-                    if relative_bomb[0] == 0:
-                        if relative_bomb[1] == 0:
-                            # bomb on player
-                            return 3
-                        elif relative_bomb[1] < 0:
-                            # bomb is top
-                            return 4
-                        else:
-                            # bomb bottom
-                            return 5
-                    else:
-                        if relative_bomb[0] > 0:
-                            # bomb right
-                            return 6
-                        else:
-                            # bomb left
-                            return 7
+    def get_coin_direction(self):
+        return self.relative_direction(self.new_position, self.new_closest_coin)
 
-    @staticmethod
-    def get_relative_bomb(state):
-        """
-        a static_method to calculate the relative player bomb situation
-        Inputs:
-            game_state
-        Returns:
-            relative_bomb coordinates of chosen/closest bomb
-        """
-        position = np.array(state.get('self')[3])
-        bombs = state.get('bombs')
-        bombs = [bomb[0] for bomb in bombs]
-        relative_bombs = bombs - position
-        return relative_bombs[np.argmin(np.abs(relative_bombs.T[0]) + np.abs(relative_bombs.T[1]))]
-
-    def get_possible_directions(self, state):
-        """
-        checking in which possible directions state the player is now
-        Inputs:
-            game_state, self.direction
-        Returns:
-            index_index_directions in update
-        """
-        position = np.array(state.get('self')[3])
-        field = np.array(state.get('field'))
-        field = field[position[0] - 1:position[0] + 2, position[1] - 1:position[1] + 2]
-        field = np.array([field[1, 0], field[0, 1], field[2, 1], field[1, 2]])
-        field = np.where(field != 0, 1, 0)
-        for i, direction in enumerate(self.direction):
-            if np.array_equal(direction, field):
-                return i
-        return 0
-
-    def get_crate_state(self, state):
-        """
-        A function to differ all possibilities where a crate could be top right bottom .... and
-        espacially if player is directly next to a crate
-            game_state, self.get_closest_crate(state)
-        Returns:
-            index_crates in update
-        """
-        closest_crate, _ = self.get_closest_crate(state)
-        # if not reachable by one coordinate
-        if np.all(closest_crate):
-            # bottom right
-            if closest_crate[0] > 0 and closest_crate[1] > 0:
-                return 0
-            # bottom left
-            elif closest_crate[0] < 0 < closest_crate[1]:
-                return 1
-            # top right
-            elif closest_crate[0] > 0 > closest_crate[1]:
-                return 2
-            # top left
-            else:
-                return 3
-        else:
-            if np.abs(closest_crate[0]) + np.abs(closest_crate[1]) != 1:
-                if closest_crate[0] == 0:
-                    # top
-                    if closest_crate[1] < 0:
-                        return 4
-                    # bottom
-                    else:
-                        return 5
-                else:
-                    # right
-                    if closest_crate[0] > 0:
-                        return 6
-                    # left
-                    else:
-                        return 7
-            else:
-                # directly next to crate
-                return 8
-
-    def get_closest_crate(self, state, closest_index=-1):
+    def get_events(self, events, self_action):
         """
         Player should be only interested in 1 crate a time which is the next one
         Inputs:
@@ -212,27 +206,38 @@ class CRATES(MODEL):
         Returns:
             coordinates of closest crate
         """
-        field = state.get('field')
-        player = state.get('self')[3]
-        crates = np.argwhere(field == 1)
+        if self.new_closest_coin_dist < self.old_closest_coin_dist:
+            events.append("CLOSER_COIN")
+        else:
+            events.append("FURTHER_COIN")
 
-        relative_crates = crates - player
-        manhattan = np.abs(relative_crates.T[0]) + np.abs(relative_crates.T[1])
-        if self.size_crates != len(relative_crates):
-            if closest_index == -1:
-                if player[0] % 2 == 0 and player[1] % 2 != 0:
-                    for i, crate in enumerate(relative_crates):
-                        if crate[0] == 0 and crate[1] != 0:
-                            manhattan[i] += 2
-                elif player[1] % 2 == 0 and player[0] % 2 != 0:
-                    for i, crate in enumerate(relative_crates):
-                        if crate[1] == 0 and crate[0] != 0:
-                            manhattan[i] += 2
-                self.arg_min = np.argmin(manhattan)
-        self.size_crates = crates.size
-        return relative_crates[self.arg_min], self.arg_min
+        return events
 
-    def get_events(self, events, new_game_state, old_game_state, self_action):
+
+class CRATE(MODEL):
+    def __init__(self):
+        """
+        additional variables need to add like:
+            size_crates (total number of crates on the field)
+            direction (a 4*1 array of 0,1 to indicate the possability of moving)
+            called (bool to indicate if a crate was chosen to be bombed)
+            arg_min (the index of the chosen crate)
+            bomb_triggered (bool to indicated if a bomb was laid)
+        """
+        super().__init__()
+        self.model = np.full(([len(self.direction)+1] + [9] + [8] + [len(self.actions)]), -0.5)
+
+    def update(self):
+        """
+        Updates the new discrete state
+        """
+        print(self.new_closest_crate_dist)
+        index_directions = self.get_possible_directions()
+        #index_crates = self.get_crate_state()
+        #index_danger_zone = self.get_danger_zone()
+        #self.discrete_state_new = (index_directions, index_crates, index_danger_zone)
+
+    def get_events(self, events, self_action):
         """
         Player should be only interested in 1 crate a time which is the next one
         Inputs:
@@ -240,67 +245,10 @@ class CRATES(MODEL):
         Returns:
             coordinates of closest crate
         """
-        if self.bomb_triggered:
-            self.countdown -= 1
-        if "BOMB_DROPPED" in events:
-            self.bomb_triggered = True
-            self.bomb_position = self.get_crate_state(new_game_state)
-            if self.bomb_position == 8:
-                events.append("PERFECT_MOVE")
-        if self.countdown < 0:
-            #if "CRATE_DESTROYED" not in events:
-            #    events.append("FALSE_BOMB")
-            self.countdown = 3
-            self.bomb_triggered = False
-        if old_game_state:
-            if not new_game_state.get('bombs'):
-                if self_action == "WAIT":
-                    events.append("WAIT_NO_BOMB")
-                old_size_crates = len(np.argwhere(old_game_state.get('field') == 1))
-                new_size_crates = len(np.argwhere(new_game_state.get('field') == 1))
-                if old_size_crates == new_size_crates:
-                    old_position = old_game_state.get('self')[3]
-                    new_position = new_game_state.get('self')[3]
-                    old_crate, crate_index = self.get_closest_crate(old_game_state)
-                    new_crate, _ = self.get_closest_crate(new_game_state, crate_index)
-                    manhattan_old = np.abs(old_crate.T[0]) + np.abs(old_crate.T[1])
-                    manhattan_new = np.abs(new_crate.T[0]) + np.abs(new_crate.T[1])
-                    if old_position[0] % 2 == 0 and old_position[1] % 2 != 0:
-                        if old_crate[0] == 0 and old_crate[1] != 0:
-                            manhattan_old += 2
-                    elif old_position[1] % 2 == 0 and old_position[0] % 2 != 0:
-                        if old_crate[1] == 0 and old_crate[0] != 0:
-                            manhattan_old += 2
-                    if new_position[0] % 2 == 0 and new_position[1] % 2 != 0:
-                        if new_crate[0] == 0 and new_crate[1] != 0:
-                            manhattan_new += 2
-                    elif new_position[1] % 2 == 0 and new_position[0] % 2 != 0:
-                        if new_crate[1] == 0 and new_crate[0] != 0:
-                            manhattan_new += 2
-                    dist = manhattan_new - manhattan_old
-
-                    if dist < 0:
-                        events.append("CLOSER_CRATE")
-                    else:
-                        events.append("FURTHER_CRATE")
-            else:
-                if not old_game_state.get('self')[2]:
-                    old_bomb = self.get_relative_bomb(old_game_state)
-                    new_bomb = self.get_relative_bomb(new_game_state)
-                    manhattan_old = np.abs(old_bomb.T[0]) + np.abs(old_bomb.T[1])
-                    manhattan_new = np.abs(new_bomb.T[0]) + np.abs(new_bomb.T[1])
-                    dist = manhattan_new - manhattan_old
-                    if dist < 0:
-                        events.append("CLOSER_BOMB")
-                    elif dist > 0:
-                        events.append("FURTHER_BOMB")
-                    #if self.bomb_position == 8 and "CRATE_DESTROYED" in events:
-                    #    events.append("PERFECT_MOVE")
-                index_of_danger_zone = self.get_danger_zone(new_game_state)
-                if 0 < index_of_danger_zone <= 2:
-                    events.append("NO_DANGER")
-                else:
-                    events.append("DANGER")
+        if self.new_closest_coin_dist < self.old_closest_coin_dist:
+            events.append("CLOSER_CRATE")
+        else:
+            events.append("FURTHER_CRATE")
 
         return events
 

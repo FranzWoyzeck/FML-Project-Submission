@@ -34,6 +34,8 @@ def setup(self):
     print(self.model.model)
 
 
+
+
 def act(self, game_state: dict) -> str:
     """
     Your agent should parse the input, think, and take a decision.
