@@ -2,6 +2,7 @@ import numpy as np
 from itertools import permutations
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+import copy
 
 
 class MODEL:
@@ -26,8 +27,10 @@ class MODEL:
         self.new_enemies = 0
         self.new_closest_coin = 0
         self.new_closest_coin_dist = 0
-        self.new_closest_crate = 0
+        self.new_closest_crate = []
         self.new_closest_crate_dist = 0
+        self.new_closest_bomb_dist = 0
+        self.new_round = 0
 
         # new state variables
         self.old_position = 0
@@ -40,6 +43,8 @@ class MODEL:
         self.old_closest_coin_dist = 0
         self.old_closest_crate = 0
         self.old_closest_crate_dist = 0
+        self.old_closest_bomb_dist = 0
+        self.old_round = 0
 
         # action variables
         self.actions = np.array(['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB'])
@@ -51,6 +56,7 @@ class MODEL:
         self.direction = np.concatenate(
             (self.direction, np.unique(np.array(list(permutations([1, 0, 0, 0], 4))), axis=0)), axis=0)
         self.direction = np.concatenate((self.direction, np.array([[0, 0, 0, 0]])), axis=0)
+        self.direction = np.concatenate((self.direction, np.array([[1, 1, 1, 1]])), axis=0)
 
         # learning variables
         self.learning_rate = 0.1
@@ -74,27 +80,126 @@ class MODEL:
         self.end_of_action()
 
     def start_of_action(self, state):
+        self.new_round = state.get('round')
         self.new_position = np.array(state.get('self')[3])
         self.new_field = np.array(state.get('field'))
         self.new_bombs = np.array([np.array(bomb[0]) for bomb in state.get('bombs')])
+        self.new_enemies = np.array([np.array(enemy[3]) for enemy in state.get('others')])
+        if self.new_enemies.size != 0:
+            for enemy in self.new_enemies:
+                if enemy[0] % 2 == 0 and 1 < enemy[0] < 15:
+                    self.new_field[enemy[0] - 1:enemy[0] + 2, enemy[1]] = 1
+                elif enemy[1] % 2 == 0 and 1 < enemy[1] < 15:
+                    self.new_field[enemy[0], enemy[1] - 1:enemy[1] + 2] = 1
+                elif 1 < enemy[0] < 15 and 1 < enemy[1] < 15:
+                    self.new_field[enemy[0], enemy[1] - 1:enemy[1] + 2] = 1
+                    self.new_field[enemy[0] - 1:enemy[0] + 2, enemy[1]] = 1
+        if self.new_bombs.size != 0:
+            copy_field = np.pad(self.new_field, pad_width=1, mode='constant', constant_values=-1)
+            bombs = []
+            for bomb in self.new_bombs:
+                bombs.append(self.get_distance(self.new_field, self.new_position, bomb))
+                bomb[0] += 1
+                bomb[1] += 1
+                if bomb[0] % 2 != 0:
+                    if (np.any(copy_field[bomb[0]-1,bomb[1]+1] == 1)
+                        or np.any(copy_field[bomb[0]-1,bomb[1]+1] == -1)) \
+                            and (np.any(copy_field[bomb[0]-1,bomb[1]-1] == 1)
+                                or np.any(copy_field[bomb[0]-1,bomb[1]-1] == -1)):
+                        copy_field[bomb[0] - 1, bomb[1]] = -1
+                    else:
+                        copy_field[bomb[0] - 3, bomb[1]] = -1
+                    if (np.any(copy_field[bomb[0]+1, bomb[1] + 1] == 1)
+                        or np.any(copy_field[bomb[0]+1, bomb[1] + 1] == -1)) \
+                            and (np.any(copy_field[bomb[0]+1, bomb[1] - 1] == 1)
+                                 or np.any(copy_field[bomb[0]+1, bomb[1] - 1] == -1)):
+                        copy_field[bomb[0] + 1, bomb[1]] = -1
+                    else:
+                        copy_field[bomb[0] + 3, bomb[1]] = -1
+
+                elif bomb[1] % 2 != 0:
+                    if (np.any(copy_field[bomb[0] + 1, bomb[1] - 1] == 1)
+                        or np.any(copy_field[bomb[0] + 1, bomb[1] - 1] == -1)) \
+                            and (np.any(copy_field[bomb[0] - 1, bomb[1] - 1] == 1)
+                                 or np.any(copy_field[bomb[0] - 1, bomb[1] - 1] == -1)):
+                        copy_field[bomb[0], bomb[1]-1] = -1
+                    else:
+                        copy_field[bomb[0], bomb[1]-3] = -1
+                    if (np.any(copy_field[bomb[0] + 1, bomb[1] + 1] == 1)
+                        or np.any(copy_field[bomb[0] + 1, bomb[1] + 1] == -1)) \
+                            and (np.any(copy_field[bomb[0] - 1, bomb[1] + 1] == 1)
+                                 or np.any(copy_field[bomb[0] - 1, bomb[1] + 1] == -1)):
+                        copy_field[bomb[0], bomb[1] + 1] = -1
+                    else:
+                        copy_field[bomb[0], bomb[1]+3] = -1
+                else:
+                    if (np.any(copy_field[bomb[0], bomb[1] - 2] == 1)
+                            or np.any(copy_field[bomb[0], bomb[1] - 2] == -1)):
+                        copy_field[bomb[0], bomb[1]-1] = -1
+                    else:
+                        if (np.any(copy_field[bomb[0] + 1, bomb[1] - 2] == 1)
+                            or np.any(copy_field[bomb[0] + 1, bomb[1] - 2] == -1)) \
+                                and (np.any(copy_field[bomb[0] - 1, bomb[1] - 2] == 1)
+                                     or np.any(copy_field[bomb[0] - 1, bomb[1] - 2] == -1)):
+                            copy_field[bomb[0], bomb[1] - 1] = -1
+
+                    if (np.any(copy_field[bomb[0], bomb[1] + 2] == 1)
+                            or np.any(copy_field[bomb[0], bomb[1] + 2] == -1)):
+                        copy_field[bomb[0], bomb[1] + 1] = -1
+                    else:
+                        if (np.any(copy_field[bomb[0] + 1, bomb[1] + 2] == 1)
+                            or np.any(copy_field[bomb[0] + 1, bomb[1] + 2] == -1)) \
+                                and (np.any(copy_field[bomb[0] - 1, bomb[1] + 2] == 1)
+                                        or np.any(copy_field[bomb[0] - 1, bomb[1] + 2] == -1)):
+                            copy_field[bomb[0], bomb[1] + 1] = -1
+
+                    if (np.any(copy_field[bomb[0]+2, bomb[1]] == 1)
+                                or np.any(copy_field[bomb[0]+2, bomb[1]] == -1)):
+                        copy_field[bomb[0]+1, bomb[1]] = -1
+                    else:
+                        if (np.any(copy_field[bomb[0] + 2, bomb[1]+1] == 1)
+                                or np.any(copy_field[bomb[0] + 2, bomb[1] + 1] == -1)) \
+                                    and (np.any(copy_field[bomb[0] + 2, bomb[1] -1] == 1)
+                                            or np.any(copy_field[bomb[0] + 2, bomb[1] -1] == -1)):
+                            copy_field[bomb[0]+1, bomb[1]] = -1
+
+                    if (np.any(copy_field[bomb[0]-2, bomb[1]] == 1)
+                            or np.any(copy_field[bomb[0]-2, bomb[1]] == -1)):
+                        copy_field[bomb[0]-1, bomb[1]] = -1
+                    else:
+                        if (np.any(copy_field[bomb[0] -2, bomb[1]+1] == 1)
+                                or np.any(copy_field[bomb[0] - 2, bomb[1] + 1] == -1)) \
+                                    and (np.any(copy_field[bomb[0] -2, bomb[1] -1] == 1)
+                                            or np.any(copy_field[bomb[0] -2, bomb[1] -1] == -1)):
+                            copy_field[bomb[0]-1, bomb[1]] = -1
+            self.new_field = copy_field[1:-1, 1:-1]
+            self.new_closest_bomb_dist = np.min(np.array(bombs))
+            self.new_bombs -= np.array([1, 1])
+
         self.new_coins = np.array(state.get('coins'))
         self.new_crates = np.argwhere(self.new_field == 1)
+
         if self.new_crates.size != 0:
-            relative_crates = self.new_crates - self.new_position
-            manhattan = np.abs(relative_crates.T[0]) + np.abs(relative_crates.T[1])
-            if self.new_position[0] % 2 == 0 and self.new_position[1] % 2 != 0:
-                for i, crate in enumerate(relative_crates):
-                    if crate[0] == 0 and crate[1] != 0:
-                        manhattan[i] += 2
-            elif self.new_position[1] % 2 == 0 and self.new_position[0] % 2 != 0:
-                for i, crate in enumerate(relative_crates):
-                    if crate[1] == 0 and crate[0] != 0:
-                        manhattan[i] += 2
-            self.new_closest_crate_dist = np.min(manhattan)
-            self.new_closest_crate = relative_crates[np.argmin(manhattan)]
-        self.new_enemies = np.array([np.array(enemy[3]) for enemy in state.get('others')])
+            if len(self.new_crates) == len(self.old_crates) and self.new_round == self.old_round:
+                tmp_field = copy.deepcopy(self.new_field)
+                tmp_field[tuple(self.new_closest_crate)] = 0
+                self.new_closest_crate_dist = self.get_distance(tmp_field, self.new_position, self.new_closest_crate)-1
+            else:
+                relative_crates = self.new_crates - self.new_position
+                manhattan = np.abs(relative_crates.T[0]) + np.abs(relative_crates.T[1])
+                if self.new_position[0] % 2 == 0 and self.new_position[1] % 2 != 0:
+                    for i, crate in enumerate(relative_crates):
+                        if crate[0] == 0 and crate[1] != 0:
+                            manhattan[i] += 2
+                elif self.new_position[1] % 2 == 0 and self.new_position[0] % 2 != 0:
+                    for i, crate in enumerate(relative_crates):
+                        if crate[1] == 0 and crate[0] != 0:
+                            manhattan[i] += 2
+                self.new_closest_crate_dist = np.min(manhattan)
+                self.new_closest_crate = self.new_crates[np.argmin(manhattan)]
+
         if self.new_coins.size != 0:
-            if len(self.new_coins) == len(self.old_coins):
+            if len(self.new_coins) == len(self.old_coins) and self.new_round == self.old_round:
                 self.new_closest_coin_dist = self.get_distance(self.new_field, self.new_position, self.new_closest_coin)
             else:
                 coins = []
@@ -118,15 +223,19 @@ class MODEL:
         self.old_closest_coin_dist = self.new_closest_coin_dist
         self.old_closest_crate = self.new_closest_crate
         self.old_closest_crate_dist = self.new_closest_crate_dist
+        self.old_closest_bomb_dist = self.new_closest_bomb_dist
+        self.old_round = self.new_round
 
     @staticmethod
     def get_distance(field, start, end):
-        field = np.where(field != 0, -1, 1)
+        field = np.where(field != 0, -1, 1).T
         grid = Grid(matrix=field)
         start = grid.node(start[0], start[1])
         end = grid.node(end[0], end[1])
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
+        #print(grid.grid_str(path=path, start=start, end=end))
+        #print(len(path))
         return len(path)
 
     @staticmethod
@@ -169,6 +278,48 @@ class MODEL:
             if np.array_equal(direction, field):
                 return i
         return 0
+
+    def get_danger_zone(self):
+        """
+        gives the featback if the players state is a state of danger,
+         and if where the danger (bomb) is relative to player, or not (range of bomb or not)
+        Inputs:
+            state: game_state, get_relative_bomb(game_state)
+        Returns:
+        index_danger_zone in update
+        """
+        if self.new_bombs.size == 0:
+            # no bombs laid yet
+            return 9
+        else:
+            danger_zone = []
+            dist = []
+            for bomb in self.new_bombs:
+                if bomb[1] % 2 == 0:
+                    for i in range(-3, 4):
+                        danger_zone.append([bomb[0], bomb[1]+i])
+                elif bomb[0] % 2 == 0:
+                    for i in range(-3, 4):
+                        danger_zone.append([bomb[0]+i, bomb[1]])
+                else:
+                    for i in range(-3, 4):
+                        danger_zone.append([bomb[0]+i, bomb[1]])
+                        danger_zone.append([bomb[0], bomb[1]+i])
+                dist_obj = self.get_distance(self.new_field, self.new_position, bomb)
+                if dist_obj == 0 or dist_obj >= 6:
+                    dist.append(5000)
+                else:
+                    dist.append(dist_obj)
+            if np.min(dist) == 5000:
+                return 9
+            if list(self.new_position) in danger_zone:
+                return self.relative_direction(self.new_position, self.new_bombs[np.argmin(np.array(dist))])
+            else:
+                if list(self.old_position) in danger_zone:
+                    for danger in danger_zone:
+                        if 0 < danger[0] < 16 and 0 < danger[1] < 16:
+                            self.new_field[tuple(danger)] = -1
+                return 10
 
 
 class COIN(MODEL):
@@ -225,17 +376,18 @@ class CRATE(MODEL):
             bomb_triggered (bool to indicated if a bomb was laid)
         """
         super().__init__()
-        self.model = np.full(([len(self.direction)+1] + [9] + [8] + [len(self.actions)]), -0.5)
+        self.model = np.full(([len(self.direction)+1] + [9] + [11] + [len(self.actions)]), -0.5)
 
     def update(self):
         """
         Updates the new discrete state
         """
-        print(self.new_closest_crate_dist)
+        relative_crates_index = self.relative_direction(self.new_position, self.new_closest_crate)
+        if self.new_closest_crate_dist == 1:
+            relative_crates_index = 8
+        index_danger_zone = self.get_danger_zone()
         index_directions = self.get_possible_directions()
-        #index_crates = self.get_crate_state()
-        #index_danger_zone = self.get_danger_zone()
-        #self.discrete_state_new = (index_directions, index_crates, index_danger_zone)
+        self.discrete_state_new = (index_directions, relative_crates_index, index_danger_zone)
 
     def get_events(self, events, self_action):
         """
@@ -245,11 +397,28 @@ class CRATE(MODEL):
         Returns:
             coordinates of closest crate
         """
-        if self.new_closest_coin_dist < self.old_closest_coin_dist:
-            events.append("CLOSER_CRATE")
+        if self.old_closest_crate_dist == 1:
+            if "BOMB_DROPPED" in events:
+                events.append("PERFECT_MOVE")
+            elif self.discrete_state_new[2] == 9:
+                events.append("NOT_PERFECT_MOVE")
+        if self.discrete_state_new[2] < 9:
+            events.append("DANGER")
+            if self.discrete_state_old[2] == 10:
+                events.append("NOT_PERFECT_MOVE")
+            if self.new_closest_bomb_dist <= self.old_closest_bomb_dist:
+                events.append("CLOSER_BOMB")
+            else:
+                events.append("FURTHER_BOMB")
         else:
-            events.append("FURTHER_CRATE")
-
+            events.append("NO_DANGER")
+        if self.discrete_state_new[2] == 9:
+            if self_action == "WAIT":
+                events.append("WAIT_NO_BOMB")
+            if self.new_closest_crate_dist < self.old_closest_crate_dist:
+                events.append("CLOSER_CRATE")
+            else:
+                events.append("FURTHER_CRATE")
         return events
 
 
