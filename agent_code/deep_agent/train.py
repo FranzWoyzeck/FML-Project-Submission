@@ -53,7 +53,7 @@ class ReplayMemory(object):
 def setup_training(self):
     """Initialize training"""
     print("Start training...")
-    self.writer = SummaryWriter()
+    #self.writer = SummaryWriter()
     self.memory = ReplayMemory(MEMORY_SIZE)
     self.coordinate_history = deque([], 20)
     self.loops = deque([], LOOPS_SIZE)
@@ -166,8 +166,8 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     if self.round > 1:
         mean_reward = np.mean(self.reward_sum)
         mean_qvalues = np.mean(self.q_values_sum)
-        self.writer.add_scalar('Average Reward', mean_reward, self.round)
-        self.writer.add_scalar('Average Q-Values', mean_qvalues, self.round)
+        #self.writer.add_scalar('Average Reward', mean_reward, self.round)
+        #self.writer.add_scalar('Average Q-Values', mean_qvalues, self.round)
 
         if VERBOSE:
             print("Mean reward", mean_reward)

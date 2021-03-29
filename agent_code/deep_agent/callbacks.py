@@ -38,7 +38,6 @@ def act(self, game_state: dict) -> str:
             self.accs = get_accessible(field, pos, coins)
             if 8 > len(self.accs) > 0:
                 path_len = get_distance(field, pos, self.accs[0,0], True)
-                print(path_len)
                 with torch.no_grad():
                     q_values = self.coin_net(state_to_features(self, game_state))
                     self.coin_collector = True

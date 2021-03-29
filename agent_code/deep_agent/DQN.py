@@ -11,7 +11,7 @@ from .params import *
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
 # if gpu is to be used
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 print("Device: ", device)
 
 
