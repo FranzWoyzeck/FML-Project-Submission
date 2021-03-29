@@ -1,0 +1,270 @@
+2021-03-29 14:47:17,095 [deep_agent_wrapper] DEBUG: Calling setup on callback.
+2021-03-29 14:47:17,098 [deep_agent_wrapper] DEBUG: Got result from callback#setup in 0.003s.
+2021-03-29 14:47:17,199 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,202 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:17,300 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,302 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:17,400 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,404 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:17,500 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,501 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:17,600 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,601 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:17,700 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,702 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:17,800 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,825 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.025s.
+2021-03-29 14:47:17,910 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:17,914 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:18,006 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,010 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:18,106 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,110 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:18,206 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,211 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:18,317 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,327 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.010s.
+2021-03-29 14:47:18,413 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,421 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.007s.
+2021-03-29 14:47:18,513 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,518 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:18,613 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,616 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:18,713 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,717 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:18,813 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,814 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:18,926 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:18,932 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.006s.
+2021-03-29 14:47:19,019 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,020 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:19,119 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,123 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:19,219 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,222 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:19,320 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,343 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.023s.
+2021-03-29 14:47:19,426 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,432 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:19,525 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,529 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:19,625 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,627 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:19,725 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,727 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:19,825 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,829 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:19,925 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:19,928 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:20,026 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,029 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:20,126 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,127 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:20,229 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,231 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:20,330 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,331 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:20,430 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,432 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:20,530 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,532 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:20,630 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,632 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:20,730 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,737 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.007s.
+2021-03-29 14:47:20,830 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,833 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:20,930 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:20,933 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:21,031 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,033 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:21,131 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,132 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,231 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,232 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,331 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,332 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,431 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,432 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,531 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,537 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,631 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,632 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,732 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,732 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,832 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,833 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:21,932 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:21,933 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:22,033 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,035 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:22,133 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,135 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:22,234 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,235 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:22,345 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,352 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.007s.
+2021-03-29 14:47:22,439 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,442 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:22,539 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,542 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:22,639 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,640 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:22,745 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,759 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.014s.
+2021-03-29 14:47:22,845 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,845 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:22,945 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:22,948 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:23,045 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,048 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:23,155 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,159 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:23,250 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,254 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:23,350 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,352 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:23,451 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,454 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:23,551 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,554 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:23,651 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,652 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:23,751 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,752 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:23,851 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,852 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:23,951 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:23,952 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,051 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,053 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,151 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,153 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,251 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,253 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,352 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,353 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,452 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,453 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,552 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,553 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,652 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,653 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,752 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,753 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,852 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,854 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:24,952 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:24,955 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,053 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,055 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,154 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,156 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,254 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,258 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:25,354 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,365 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.011s.
+2021-03-29 14:47:25,454 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,456 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,554 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,557 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:25,654 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,657 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,755 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,758 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:25,858 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,860 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:25,958 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:25,960 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:26,058 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,060 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:26,158 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,162 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:26,259 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,266 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.007s.
+2021-03-29 14:47:26,359 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,366 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.007s.
+2021-03-29 14:47:26,464 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,473 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.009s.
+2021-03-29 14:47:26,564 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,574 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:26,664 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,670 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:26,765 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,767 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:26,865 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,865 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:26,965 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:26,966 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,065 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,066 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,165 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,166 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,265 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,266 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,365 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,366 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,465 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,466 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,565 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,566 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,666 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,666 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:27,766 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,769 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:27,866 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,869 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:27,966 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:27,969 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:28,067 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,071 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:28,167 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,170 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:28,267 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,269 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:28,367 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,372 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:28,467 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,471 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.004s.
+2021-03-29 14:47:28,567 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,568 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:28,668 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,673 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.005s.
+2021-03-29 14:47:28,767 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,769 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:28,867 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,869 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:28,968 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:28,969 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,068 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,070 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,168 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,170 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,269 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,272 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,369 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,371 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,470 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,472 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:29,570 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,571 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:29,670 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,672 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:29,770 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,774 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.003s.
+2021-03-29 14:47:29,870 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,885 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.015s.
+2021-03-29 14:47:29,970 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:29,972 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:30,070 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,072 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:30,171 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,173 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:30,271 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,273 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:30,371 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,371 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.001s.
+2021-03-29 14:47:30,471 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,473 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
+2021-03-29 14:47:30,571 [deep_agent_wrapper] DEBUG: Calling act on callback.
+2021-03-29 14:47:30,573 [deep_agent_wrapper] DEBUG: Got result from callback#act in 0.002s.
