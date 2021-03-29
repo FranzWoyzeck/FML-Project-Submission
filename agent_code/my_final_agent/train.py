@@ -50,6 +50,19 @@ def setup_training(self):
 
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
+    if self.model.new_closest_coin_dist == 0:
+        with open("my-saved-crates-model.pt", "rb") as file:
+            self.model = pickle.load(file)
+        self.coin = False
+        self.crate = True
+    else:
+        if len(self.model.discrete_state_old) == 3:
+            if self.model.discrete_state_old[2] > 8:
+                with open("my-saved-coins-model.pt", "rb") as file:
+                    self.model = pickle.load(file)
+                self.coin = True
+                self.crate = False
+
     """
     Called once per step to allow intermediate rewards based on game events.
 
@@ -78,8 +91,12 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
         # state_to_features is defined in callbacks.py
         self.transitions.append(Transition(old_game_state, self_action, new_game_state, self.model.rewards))
     self.model.end_of_action()
-
-
+    if self.coin:
+        with open("my-saved-coins-model.pt", "wb") as file:
+            pickle.dump(self.model, file)
+    if self.crate:
+        with open("my-saved-crates-model.pt", "wb") as file:
+            pickle.dump(self.model, file)
 
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
@@ -112,8 +129,12 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.transitions.append(Transition(last_game_state, last_action, None, self.model.rewards))
     self.epsilon -= self.epsilon_decay_value
     # Store the model
-    with open("my-saved-crates-model.pt", "wb") as file:
-        pickle.dump(self.model, file)
+    if self.coin:
+        with open("my-saved-coins-model.pt", "wb") as file:
+            pickle.dump(self.model, file)
+    if self.crate:
+        with open("my-saved-crates-model.pt", "wb") as file:
+            pickle.dump(self.model, file)
 
 
 def reward_from_events(self, events: List[str]) -> int:
@@ -123,32 +144,33 @@ def reward_from_events(self, events: List[str]) -> int:
     Here you can modify the rewards your agent get so as to en/discourage
     certain behavior.
     """
-    game_rewards = {
-        #coin rewards
-        #e.COIN_COLLECTED: 50,
-        # e.KILLED_OPPONENT: 5,
-        #e.INVALID_ACTION: -10,
-        #e.WAITED: -5,
-        # idea: the custom event is bad
-        #FURTHER_COIN: -5,
-        #e.BOMB_DROPPED: -100
+    if self.coin:
+        game_rewards = {
+            #coin rewards
+            e.COIN_COLLECTED: 50,
+            e.KILLED_OPPONENT: 5,
+            e.INVALID_ACTION: -10,
+            e.WAITED: -5,
+            # idea: the custom event is bad
+            FURTHER_COIN: -5,
+            e.BOMB_DROPPED: -100
+        }
 
-        #crate rewards
-        e.INVALID_ACTION: -50,
-        e.CRATE_DESTROYED: 5,
-        # e.KILLED_SELF: -50,
-        e.BOMB_DROPPED: -20,
-        DANGER: -10,
-        CLOSER_BOMB: -10,
-        FURTHER_BOMB: 5,
-        WAIT_NO_BOMB: -5,
-        FURTHER_CRATE: -20,
-        PERFECT_MOVE: 200,
-        NOT_PERFECT_MOVE: -100,
-        e.GOT_KILLED: -150,
-        e.KILLED_SELF: -100
+    if self.crate:
+        game_rewards = {
+            e.INVALID_ACTION: -50,
+            #e.CRATE_DESTROYED: 5,
+            e.BOMB_DROPPED: -20,
+            DANGER: -20,
+            CLOSER_BOMB: -50,
+            WAIT_NO_BOMB: -5,
+            FURTHER_CRATE: -20,
+            PERFECT_MOVE: 20,
+            NOT_PERFECT_MOVE: -10,
+            e.GOT_KILLED: -100,
+            e.KILLED_SELF: -10
+        }
 
-    }
     reward_sum = 0
     for event in np.unique(events):
         if event in game_rewards:

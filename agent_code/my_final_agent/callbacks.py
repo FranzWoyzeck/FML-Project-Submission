@@ -4,7 +4,6 @@ import random
 from .q_learning import COIN, CRATE
 import numpy as np
 
-
 def setup(self):
     """
     Setup your code. This is called once when loading each agent.
@@ -27,10 +26,13 @@ def setup(self):
         self.logger.info("Loading model from saved state.")
         with open("my-saved-crates-model.pt", "rb") as file:
             self.model = pickle.load(file)
+    self.coin = False
+    self.crate = True
     self.epsilon = 0
     self.start_epsilon_decaying = 1
-    self.end_epsilon_decaying = 10000
+    self.end_epsilon_decaying = 1000
     self.epsilon_decay_value = self.epsilon / (self.end_epsilon_decaying - self.start_epsilon_decaying)
+    self.model.new_closest_coin_dist = 0
 
 
 def act(self, game_state: dict) -> str:
@@ -52,6 +54,14 @@ def act(self, game_state: dict) -> str:
         self.logger.debug("Querying model for action.")
         return self.model.actions[np.argmax(self.model.model[self.model.discrete_state_new])]
     else:
+        if self.model.new_closest_coin_dist == 0:
+            with open("my-saved-crates-model.pt", "rb") as file:
+                self.model = pickle.load(file)
+        else:
+            if len(self.model.discrete_state_old) == 3:
+                if self.model.discrete_state_old[2] > 8:
+                    with open("my-saved-coins-model.pt", "rb") as file:
+                        self.model = pickle.load(file)
         self.model.start_of_action(game_state)
         self.model.update()
         decision = self.model.actions[np.argmax(self.model.model[self.model.discrete_state_new])]

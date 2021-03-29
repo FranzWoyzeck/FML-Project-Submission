@@ -94,6 +94,8 @@ class MODEL:
                 elif 1 < enemy[0] < 15 and 1 < enemy[1] < 15:
                     self.new_field[enemy[0], enemy[1] - 1:enemy[1] + 2] = 1
                     self.new_field[enemy[0] - 1:enemy[0] + 2, enemy[1]] = 1
+                else:
+                    self.new_field[tuple(enemy)] = 1
         if self.new_bombs.size != 0:
             copy_field = np.pad(self.new_field, pad_width=1, mode='constant', constant_values=-1)
             bombs = []
@@ -172,6 +174,7 @@ class MODEL:
                                     and (np.any(copy_field[bomb[0] -2, bomb[1] -1] == 1)
                                             or np.any(copy_field[bomb[0] -2, bomb[1] -1] == -1)):
                             copy_field[bomb[0]-1, bomb[1]] = -1
+
             self.new_field = copy_field[1:-1, 1:-1]
             self.new_closest_bomb_dist = np.min(np.array(bombs))
             self.new_bombs -= np.array([1, 1])
@@ -198,6 +201,7 @@ class MODEL:
                 self.new_closest_crate_dist = np.min(manhattan)
                 self.new_closest_crate = self.new_crates[np.argmin(manhattan)]
 
+        self.new_closest_coin_dist = 0
         if self.new_coins.size != 0:
             if len(self.new_coins) == len(self.old_coins) and self.new_round == self.old_round:
                 self.new_closest_coin_dist = self.get_distance(self.new_field, self.new_position, self.new_closest_coin)
@@ -237,6 +241,18 @@ class MODEL:
         #print(grid.grid_str(path=path, start=start, end=end))
         #print(len(path))
         return len(path)
+
+    @staticmethod
+    def get_distance_path(field, start, end):
+        field = np.where(field != 0, -1, 1).T
+        grid = Grid(matrix=field)
+        start = grid.node(start[0], start[1])
+        end = grid.node(end[0], end[1])
+        finder = AStarFinder()
+        path, runs = finder.find_path(start, end, grid)
+        #print(grid.grid_str(path=path, start=start, end=end))
+        #print(len(path))
+        return path
 
     @staticmethod
     def relative_direction(a, b):
@@ -315,10 +331,9 @@ class MODEL:
             if list(self.new_position) in danger_zone:
                 return self.relative_direction(self.new_position, self.new_bombs[np.argmin(np.array(dist))])
             else:
-                if list(self.old_position) in danger_zone:
-                    for danger in danger_zone:
-                        if 0 < danger[0] < 16 and 0 < danger[1] < 16:
-                            self.new_field[tuple(danger)] = -1
+                for danger in danger_zone:
+                    if 0 < danger[0] < 16 and 0 < danger[1] < 16:
+                        self.new_field[tuple(danger)] = -1
                 return 10
 
 
@@ -342,12 +357,16 @@ class COIN(MODEL):
         """
         Updates the new discrete state
         """
+        _ = self.get_danger_zone()
         index_directions = self.get_possible_directions()
         index_coin_direction = self.get_coin_direction()
         self.discrete_state_new = (index_directions, index_coin_direction)
 
     def get_coin_direction(self):
-        return self.relative_direction(self.new_position, self.new_closest_coin)
+        path = self.get_distance_path(self.new_field, self.new_position, self.new_closest_coin)
+        if len(path) <= 1:
+            return self.relative_direction(self.new_position, self.new_position)
+        return self.relative_direction(self.new_position, path[1])
 
     def get_events(self, events, self_action):
         """
@@ -420,6 +439,38 @@ class CRATE(MODEL):
             else:
                 events.append("FURTHER_CRATE")
         return events
+
+
+class MASTER(MODEL):
+    class COIN(MODEL):
+        """
+        A class of model only able to bomb crates in an intelligent method
+        """
+
+        def __init__(self):
+            """
+            additional variables need to add like:
+                size_crates (total number of crates on the field)
+                direction (a 4*1 array of 0,1 to indicate the possability of moving)
+                called (bool to indicate if a crate was chosen to be bombed)
+                arg_min (the index of the chosen crate)
+                bomb_triggered (bool to indicated if a bomb was laid)
+            """
+            super().__init__()
+            self.actions = ["COIN", "CRATES"]
+            self.model = np.full(([len(self.direction) + 1] + [9] + [len(self.actions)]), -0.5)
+
+        def update(self):
+            """
+            Updates the new discrete state
+            """
+            relative_crates_index = self.relative_direction(self.new_position, self.new_closest_crate)
+            if self.new_closest_crate_dist == 1:
+                relative_crates_index = 8
+            index_danger_zone = self.get_danger_zone()
+            index_directions = self.get_possible_directions()
+            self.discrete_state_new = (index_directions, relative_crates_index, index_danger_zone)
+
 
 
 class ENEMY(MODEL):
